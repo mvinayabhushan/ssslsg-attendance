@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSSLSG · Daily Prayer Attendance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Spline+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --saffron:#E2641B; --saffron-deep:#B84A0C; --saffron-soft:#FBEDE3;
+  --ink:#1C1A17; --ink-soft:#5A544C; --line:#E7E0D6; --paper:#FBF7F1;
+  --card:#FFFFFF; --ok:#1E8449; --ok-soft:#E6F4EA; --warn:#B7791F; --warn-soft:#FBF1DC;
+  --bad:#C0392B; --bad-soft:#FBE9E7; --info:#1A5276; --info-soft:#E8F1F8;
+  --leave:#6C3483; --leave-soft:#F2E9F6; --od:#117A65; --od-soft:#E0F2EE;
+  --shadow:0 1px 2px rgba(28,26,23,.04),0 8px 24px rgba(28,26,23,.06);
+  --shadow-lg:0 12px 40px rgba(28,26,23,.12);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{height:-webkit-fill-available}body{background:var(--paper);color:var(--ink);font-family:'Spline Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;min-height:100vh;min-height:-webkit-fill-available}
+h1,h2,h3,.display{font-family:'Fraunces',Georgia,serif}
+.hidden{display:none!important}
+button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+input,select,textarea{font-family:inherit;font-size:15px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+::-webkit-scrollbar{height:9px;width:9px}::-webkit-scrollbar-thumb{background:#D8CFC1;border-radius:9px}
+
+.topbar{position:-webkit-sticky;position:sticky;top:0;z-index:40;background:rgba(251,247,241,.86);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar-in{max-width:1200px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(150deg,var(--saffron),var(--saffron-deep));display:grid;place-items:center;color:#fff;font-family:'Fraunces';font-weight:700;font-size:19px;flex:none;box-shadow:0 4px 12px rgba(184,74,12,.3)}
+.brand-txt{min-width:0}
+.brand-txt b{font-family:'Fraunces';font-weight:600;font-size:16px;display:block;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand-txt span{font-size:12px;color:var(--ink-soft)}
+.top-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+.sync-dot{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-soft);padding:5px 11px;border:1px solid var(--line);border-radius:999px;background:var(--card)}
+.sync-dot i{width:8px;height:8px;border-radius:50%;background:#C9C0B2;flex:none}
+.sync-dot.live i{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
+.scope-chip{font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:999px;background:var(--saffron-soft);color:var(--saffron-deep);white-space:nowrap;max-width:230px;overflow:hidden;text-overflow:ellipsis}
+.icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--ink-soft);font-size:17px;transition:.15s}
+.icon-btn:hover{border-color:var(--saffron);color:var(--saffron)}
+
+.wrap{max-width:1200px;margin:0 auto;padding:24px 20px 80px;-webkit-overflow-scrolling:touch}
+.screen{-webkit-animation:rise .4s cubic-bezier(.2,.7,.3,1) both;animation:rise .4s cubic-bezier(.2,.7,.3,1) both;-webkit-animation-fill-mode:both;animation-fill-mode:both}
+@-webkit-keyframes rise{from{opacity:0;-webkit-transform:translateY(10px);transform:translateY(10px)}to{opacity:1;-webkit-transform:none;transform:none}}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.gate{min-height:72vh;display:grid;place-items:center}
+.gate-card{background:var(--card);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow-lg);max-width:430px;width:100%;padding:38px 34px;text-align:center}
+.gate-mark{width:66px;height:66px;border-radius:19px;background:linear-gradient(150deg,var(--saffron),var(--saffron-deep));display:grid;place-items:center;color:#fff;font-family:'Fraunces';font-size:33px;margin:0 auto 18px;box-shadow:0 8px 22px rgba(184,74,12,.32)}
+.gate-card h1{font-size:25px;font-weight:600;margin-bottom:6px}
+.gate-card p{color:var(--ink-soft);font-size:14.5px;margin-bottom:22px;line-height:1.5}
+.code-input{width:100%;text-align:center;letter-spacing:.18em;font-weight:600;font-size:20px;text-transform:uppercase;padding:15px;border:1.5px solid var(--line);border-radius:13px;background:var(--paper);margin-bottom:14px}
+.code-input:focus{outline:none;border-color:var(--saffron);background:#fff;box-shadow:0 0 0 4px var(--saffron-soft)}
+.gate-err{color:var(--bad);font-size:13.5px;font-weight:500;margin-bottom:12px;min-height:18px}
+.gate-foot{margin-top:20px;font-size:12.5px;color:var(--ink-soft)}
+.gate-foot button{color:var(--saffron-deep);font-weight:600;font-size:12.5px}
+.gate-foot button:hover{text-decoration:underline}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);-webkit-overflow-scrolling:touch}
+.pad{padding:20px}
+.section-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
+.section-head h2{font-size:23px;font-weight:600}
+.pill{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
+.muted{color:var(--ink-soft)}
+
+.subnav{display:-webkit-inline-flex;display:inline-flex;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--card);margin-bottom:22px;box-shadow:var(--shadow)}
+.subnav button{padding:11px 20px;font-weight:600;font-size:14.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;transition:.12s}
+.subnav button.active{background:var(--ink);color:#fff}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--ink-soft);margin-bottom:7px}
+.field select,.field input,.field textarea{width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:var(--paper);color:var(--ink);transition:.15s}
+.field select:focus,.field input:focus,.field textarea:focus{outline:none;border-color:var(--saffron);background:#fff;box-shadow:0 0 0 4px var(--saffron-soft)}
+.datetime{display:flex;gap:10px;flex-wrap:wrap}
+.dt-chip{flex:1;min-width:130px;background:var(--saffron-soft);border:1px solid #F0D9C6;border-radius:12px;padding:11px 14px}
+.dt-chip small{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--saffron-deep);font-weight:600;display:block}
+.dt-chip b{font-size:17px;font-family:'Fraunces';font-weight:600}
+
+.lock-banner{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;border-radius:13px;margin-bottom:18px;font-size:14px;line-height:1.45}
+.lock-banner.open{background:var(--ok-soft);color:#15623a;border:1px solid #BFE3CC}
+.lock-banner.shut{background:var(--bad-soft);color:#922;border:1px solid #F2C9C2}
+.lock-banner .bic{font-size:20px;line-height:1}
+
+.session-tabs{display:flex;gap:8px;margin-bottom:16px}
+.session-tab{flex:1;padding:11px;border:1px solid var(--line);border-radius:12px;background:var(--card);font-weight:600;font-size:14.5px;color:var(--ink-soft);transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.session-tab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.session-tab .cnt{font-size:11.5px;opacity:.7}
+
+.teacher-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.teacher-row:last-child{border-bottom:none}
+.t-name{flex:1;font-weight:500;font-size:15px;min-width:120px}
+.status-seg{display:flex;gap:4px;flex-wrap:wrap}
+.seg{padding:7px 11px;border-radius:9px;border:1.5px solid var(--line);font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--card);transition:.12s}
+.seg:hover{border-color:#C9C0B2}
+.seg.on.s-P{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg.on.s-La{background:var(--bad);border-color:var(--bad);color:#fff}
+.seg.on.s-A{background:var(--bad);border-color:var(--bad);color:#fff}
+.seg.on.s-L{background:var(--bad);border-color:var(--bad);color:#fff}
+.seg.on.s-OD{background:var(--bad);border-color:var(--bad);color:#fff}
+.od-note{width:100%;margin-top:8px;padding:9px 11px;border:1px dashed var(--od);border-radius:9px;background:var(--od-soft);font-size:13.5px}
+.od-wrap{flex-basis:100%}
+
+.bulk-bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;padding:12px 0 4px;font-size:13px;color:var(--ink-soft)}
+.bulk-bar button{font-size:12.5px;font-weight:600;padding:6px 11px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink-soft)}
+.bulk-bar button:hover{border-color:var(--ok);color:var(--ok)}
+
+.submit-row{display:flex;gap:12px;align-items:center;margin-top:22px;flex-wrap:wrap}
+.btn{padding:13px 22px;border-radius:12px;font-weight:600;font-size:15px;-webkit-transition:.15s;transition:.15s;display:-webkit-inline-flex;display:inline-flex;-webkit-align-items:center;align-items:center;gap:8px}
+.btn-primary{background:linear-gradient(150deg,var(--saffron),var(--saffron-deep));color:#fff;box-shadow:0 6px 18px rgba(184,74,12,.28)}
+.btn-primary:hover{-webkit-transform:translateY(-2px);transform:translateY(-2px);box-shadow:0 10px 26px rgba(184,74,12,.34)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-ghost{border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--saffron)}
+
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:17px 18px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--saffron)}
+.stat.s-ok::before{background:var(--ok)} .stat.s-bad::before{background:var(--bad)}
+.stat.s-warn::before{background:var(--warn)} .stat.s-info::before{background:var(--info)}
+.stat .lab{font-size:12.5px;color:var(--ink-soft);font-weight:500}
+.stat .val{font-family:'Fraunces';font-weight:600;font-size:32px;line-height:1.1;margin-top:3px}
+.stat .sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
+
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.toolbar select,.toolbar input{padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.seg-toggle{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.seg-toggle button{padding:9px 14px;font-size:13.5px;font-weight:600;color:var(--ink-soft);background:var(--card)}
+.seg-toggle button.active{background:var(--ink);color:#fff}
+
+.grid-2{display:grid;grid-template-columns:1.3fr 1fr;gap:18px;margin-bottom:18px}
+@media(max-width:860px){.grid-2{grid-template-columns:1fr}}
+.chart-box{position:relative;height:260px}
+.card-title{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink-soft);font-weight:600;padding:10px 12px;border-bottom:2px solid var(--line);background:var(--card)}
+td{padding:11px 12px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:none}
+.row-click{cursor:pointer;transition:.1s}
+.row-click:hover{background:var(--saffron-soft)}
+.mini-bar{height:7px;border-radius:5px;background:var(--line);overflow:hidden;display:flex;min-width:90px}
+.mini-bar i{height:100%}
+.mini-bar .b-P{background:var(--ok)}.mini-bar .b-La{background:var(--bad)}.mini-bar .b-A{background:var(--bad)}.mini-bar .b-L{background:var(--bad)}.mini-bar .b-OD{background:var(--bad)}
+
+.daybox{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;font-size:11px;font-weight:600;color:#fff}
+.d-S{background:var(--ok)}.d-N{background:var(--bad)}.d-L{background:var(--warn)}.d-_{background:var(--line);color:var(--ink-soft)}
+
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 9px;border-radius:7px}
+.tag.ok{background:var(--ok-soft);color:#15623a}.tag.bad{background:var(--bad-soft);color:#922}.tag.warn{background:var(--warn-soft);color:#7a5310}.tag.info{background:var(--info-soft);color:var(--info)}
+
+.empty{text-align:center;padding:50px 20px;color:var(--ink-soft)}
+.empty .big{font-size:40px;margin-bottom:10px}
+
+.overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(28,26,23,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);z-index:90;display:grid;place-items:center;padding:20px;-webkit-animation:fade .2s;animation:fade .2s}
+@-webkit-keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card);border-radius:18px;max-width:560px;width:100%;max-height:88vh;overflow:auto;-webkit-overflow-scrolling:touch;box-shadow:var(--shadow-lg);-webkit-animation:rise .3s;animation:rise .3s}
+.modal-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--card);z-index:2}
+.modal-head h3{font-size:19px;font-weight:600;flex:1}
+.modal-body{padding:22px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:13px 22px;border-radius:12px;font-size:14.5px;font-weight:500;box-shadow:var(--shadow-lg);z-index:100;display:flex;align-items:center;gap:9px;animation:rise .3s;max-width:90vw}
+.toast.ok{background:var(--ok)} .toast.bad{background:var(--bad)}
+
+.roster-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.roster-item input{flex:1;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--paper)}
+.roster-item button{color:var(--bad);font-size:18px;width:34px;height:34px;border-radius:8px}
+.roster-item button:hover{background:var(--bad-soft)}
+
+.note{font-size:13px;color:var(--ink-soft);line-height:1.5;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:13px 15px}
+.note b{color:var(--ink)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--ink-soft);margin-top:10px}
+.legend span{display:flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+@media(max-width:560px){.wrap{padding:18px 14px 70px}}
+@media(max-width:768px){input,select,textarea{font-size:16px!important}}
+@media(max-width:768px){.gate{min-height:0;display:block;padding:40px 0}.gate-card{margin:0 auto}}
+@media(hover:none){.btn-primary:hover{-webkit-transform:none;transform:none;box-shadow:0 6px 18px rgba(184,74,12,.28)}.icon-btn:hover{border-color:var(--line);color:var(--ink-soft)}.btn-ghost:hover{border-color:var(--line)}.row-click:hover{background:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="mark">ॐ</div>
+      <div class="brand-txt"><b>Daily Prayer Attendance</b><span>Sri Sathya Sai Loka Seva Gurukulam</span></div>
+    </div>
+    <div class="top-right">
+      <span class="scope-chip hidden" id="scopeChip"></span>
+      <div class="sync-dot" id="syncDot"><i></i><span id="syncTxt">Local</span></div>
+      <button class="icon-btn hidden" id="settingsBtn" title="Settings" onclick="openSettings()">⚙</button>
+      <button class="icon-btn hidden" id="signoutBtn" title="Sign out" onclick="signOut()">⏻</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ===== GATE ===== -->
+  <section id="scr-gate" class="screen">
+    <div class="gate">
+      <div class="gate-card">
+        <div class="gate-mark">ॐ</div>
+        <h1>Enter your access code</h1>
+        <p>Each campus and HOD has a private code. Your code opens only your own area.</p>
+        <input class="code-input" id="codeInput" maxlength="20" placeholder="CODE" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text"
+               onkeydown="if(event.key==='Enter')submitCode()">
+        <div class="gate-err" id="gateErr"></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" id="gateBtn" onclick="submitCode()" ontouchend="event.preventDefault();submitCode()">Continue</button>
+        <div class="gate-foot">Trouble signing in? Contact your HOD. · <button onclick="openSettings()">Setup / sync settings</button></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CAMPUS ===== -->
+  <section id="scr-campus" class="screen hidden">
+    <div class="section-head" style="margin-bottom:14px">
+      <h2 id="campusName">Campus</h2>
+      <span class="pill" id="campusSection" style="background:var(--info-soft);color:var(--info)"></span>
+    </div>
+    <div class="subnav">
+      <button id="navMark" class="active" onclick="campusTab('mark')">✍️ Mark Today</button>
+      <button id="navDash" onclick="campusTab('dash')">📊 My Dashboard</button>
+    </div>
+
+    <div id="campusMark">
+      <div class="datetime" style="margin-bottom:16px">
+        <div class="dt-chip"><small>Date</small><b id="dtDate">—</b></div>
+        <div class="dt-chip"><small>Time now</small><b id="dtTime">—</b></div>
+        <div class="dt-chip"><small>Deadline</small><b id="dtDeadline">09:00 AM</b></div>
+      </div>
+      <div id="lockBanner" class="lock-banner open"><span class="bic">✓</span><div id="lockMsg"></div></div>
+      <div class="field" style="max-width:340px"><label>Submitting coordinator</label><select id="coordWho"></select></div>
+      <div class="note" style="margin:4px 0 16px">Enter <b>both Morning and Evening</b> prayer here — one submission per day, before the deadline. You can re-open and update before the deadline; only the teachers you change get updated. <b>If no submission is made by the deadline, that day is counted as Absent for all teachers.</b></div>
+      <div class="session-tabs">
+        <button class="session-tab active" id="tabM" onclick="switchSession('M')">🌅 Morning <span class="cnt" id="cntM"></span></button>
+        <button class="session-tab" id="tabE" onclick="switchSession('E')">🌙 Evening <span class="cnt" id="cntE"></span></button>
+      </div>
+      <div class="card pad">
+        <div class="bulk-bar"><span>Quick fill this session:</span><button onclick="bulkSet('P')">All Present</button><button onclick="bulkSet('')">Clear</button><span style="margin-left:auto" id="markedInfo"></span></div>
+        <div id="teacherList"></div>
+      </div>
+      <div class="submit-row">
+        <button class="btn btn-primary" id="submitBtn" onclick="submitAttendance()">Submit Attendance</button>
+        <button class="btn btn-ghost" onclick="manageRoster()">Edit teacher list</button>
+        <span class="muted" id="submitHint" style="font-size:13.5px"></span>
+      </div>
+      <div class="legend"><span><i style="background:var(--ok)"></i>Present</span><span><i style="background:var(--warn)"></i>Late</span><span><i style="background:var(--bad)"></i>Absent</span><span><i style="background:var(--leave)"></i>Leave</span><span><i style="background:var(--od)"></i>On Duty</span></div>
+    </div>
+
+    <div id="campusDash" class="hidden">
+      <div class="toolbar"><label class="muted" style="font-size:13px">Month</label><select id="campusYear" onchange="renderCampusDash()" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)"></select><select id="campusMonthSel" onchange="renderCampusDash()" style="padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)"></select><button class="btn btn-ghost" style="padding:9px 16px;font-size:13.5px" onclick="refreshData(true)">↻ Refresh</button></div>
+      <div class="stat-grid" id="campusStats"></div>
+      <div class="grid-2">
+        <div class="card pad"><div class="card-title">📅 Submission history <span class="muted" id="cdMonthLbl" style="font-weight:400;font-size:13px"></span></div><div id="cdTracker"></div><div class="legend"><span><i style="background:var(--ok)"></i>On time</span><span><i style="background:var(--warn)"></i>Late</span><span><i style="background:var(--bad)"></i>Missed</span><span><i style="background:var(--line)"></i>No data</span></div></div>
+        <div class="card pad"><div class="card-title">📊 This month's attendance mix</div><div class="chart-box"><canvas id="cdChart"></canvas></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card pad"><div class="card-title">👤 Per-teacher this month</div><div style="overflow-x:auto;max-height:340px;overflow-y:auto"><table id="cdTeacherTable"><thead><tr><th>Teacher</th><th>Present</th><th>Absent</th><th>Leave</th><th>OD</th></tr></thead><tbody></tbody></table></div></div>
+        <div class="card pad"><div class="card-title">⚠️ Most absent / on leave</div><div id="cdTopAbsent"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== HOD ===== -->
+  <section id="scr-hod" class="screen hidden">
+    <div class="section-head">
+      <h2 id="hodTitle">Dashboard</h2>
+      <span class="pill" id="hodScope" style="background:var(--info-soft);color:var(--info)"></span>
+      <div style="margin-left:auto;display:flex;gap:10px;align-items:center">
+        <button class="btn btn-ghost" style="padding:9px 16px;font-size:13.5px" onclick="refreshData(true)">↻ Refresh</button>
+        <button class="btn btn-ghost" style="padding:9px 16px;font-size:13.5px" onclick="exportCSV()">⤓ Export</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <label class="muted" style="font-size:13px">Date</label>
+      <input type="date" id="hodDate" onchange="renderHOD()">
+      <div class="seg-toggle"><button id="segBoth" class="active" onclick="setSessionView('Both')">Both</button><button id="segM" onclick="setSessionView('M')">Morning</button><button id="segE" onclick="setSessionView('E')">Evening</button></div>
+      <select id="hodStatusFilter" onchange="renderHOD()"><option value="">All statuses</option><option value="A">Absent only</option><option value="L">Leave only</option><option value="OD">On Duty only</option><option value="La">Late only</option></select>
+    </div>
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="grid-2">
+      <div class="card pad"><div class="card-title">📊 Attendance breakdown</div><div class="chart-box"><canvas id="chartStatus"></canvas></div></div>
+      <div class="card pad"><div class="card-title">🏫 Submission status today</div><div class="chart-box"><canvas id="chartSubmit"></canvas></div></div>
+    </div>
+    <div class="card pad" style="margin-bottom:18px">
+      <div class="card-title">🏫 Campus-wise attendance <span class="muted" style="font-weight:400;font-size:13px">— tap a row for detail</span></div>
+      <div style="overflow-x:auto"><table id="campusTable"><thead><tr><th>Campus</th><th>Coordinator</th><th>Submitted</th><th>Present</th><th>Issues</th><th style="min-width:120px">Mix</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div class="card pad">
+      <div class="card-title">📅 Month submission tracker <span class="muted" style="font-weight:400;font-size:13px" id="trackerMonth"></span></div>
+      <div id="tracker"></div>
+      <div class="legend"><span><i style="background:var(--ok)"></i>Submitted</span><span><i style="background:var(--warn)"></i>Late</span><span><i style="background:var(--bad)"></i>Not submitted</span><span><i style="background:var(--line)"></i>No data</span></div>
+    </div>
+  </section>
+</div>
+
+<div id="modalMount"></div>
+<div id="toastMount"></div>
+
+<script>
+/* ============ CONFIG: paste your /exec URL once, then save & share ============ */
+const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8BgxA4x5n3ZI7X_rp7TM6PGhasmK8tE_5wGlHq0FlpQlp5pJwoIm3yCqWQ0HN8IBe/exec";   // e.g. "https://script.google.com/macros/s/AKfy..../exec"
+
+const CAMPUSES=[
+  {id:'b01',name:'Bagalkote',section:'Boys',coords:['Avinash K']},
+  {id:'b02',name:'Belagavi',section:'Boys',coords:['Shiva Kumar Kobri']},
+  {id:'b03',name:'Hampi',section:'Boys',coords:['Ani Chandra','Lohith Kale']},
+  {id:'b04',name:'Jayapura (Boys)',section:'Boys',coords:['Hrushank']},
+  {id:'b05',name:'Karwar',section:'Boys',coords:['Vishwanatha Verma']},
+  {id:'b06',name:'Kodaikanal',section:'Boys',coords:['Akilan']},
+  {id:'b07',name:'Koppal',section:'Boys',coords:['Manjunath A','Prakash M']},
+  {id:'b08',name:'Mysore',section:'Boys',coords:['Sai Giridhar']},
+  {id:'b09',name:'Shivamogga',section:'Boys',coords:['Shiva Prasad Bhat','Dhruva Ullas']},
+  {id:'b10',name:'Tumkur',section:'Boys',coords:['Anil Kumar']},
+  {id:'b11',name:'Vijayapura',section:'Boys',coords:['Pramod Sidda Reddy']},
+  {id:'b12',name:'Cricket Academy',section:'Boys',coords:['Bhupendra']},
+  {id:'b13',name:'Skill Development Course',section:'Boys',coords:['Manoj','Vinayak']},
+  {id:'b14',name:'Hassan',section:'Boys',coords:['Naveen RA','Rajesh Menon']},
+  {id:'b15',name:'Kalaburagi Gurukulam',section:'Boys',coords:['Snehil','Pratap']},
+  {id:'b16',name:'Kalaburagi UHE',section:'Boys',coords:['Sriranga','Alok']},
+  {id:'b17',name:'Mandya',section:'Boys',coords:['Praveen TC','Vineeth HP']},
+  {id:'b18',name:'Muddenahalli Gurukulam - Agri',section:'Boys',coords:['Sai Prathik','Kaushal','Lohith']},
+  {id:'b19',name:'Medical Hostel - Boys',section:'Boys',coords:['Manjrekar BS']},
+  {id:'b20',name:'UHE - Muddenahalli',section:'Boys',coords:['Sai Krishna','Mahesh']},
+  {id:'b21',name:'PG - Muddenahalli',section:'Boys',coords:['Nagabharana']},
+  {id:'b22',name:'Professional Courses',section:'Boys',coords:['Kabir']},
+  {id:'b23',name:'Working Professionals',section:'Boys',coords:['Karan Bharadwaj','Kabir']},
+  {id:'b24',name:'PG Students - Prema Kuteer',section:'Boys',coords:['Yatheesh Kumar']},
+  {id:'g01',name:'NKH University',section:'Girls',coords:['Navyashree']},
+  {id:'g02',name:'PBM Chikkaballapura',section:'Girls',coords:['Nagashri']},
+  {id:'g03',name:'Sai Sharanam - Medical',section:'Girls',coords:['Dr Sai Lakshmi']},
+  {id:'g04',name:'BPA Nada Gurukulam',section:'Girls',coords:['Sanjana B S']},
+  {id:'g05',name:'TREP',section:'Girls',coords:['Divyashree']},
+  {id:'g06',name:'Gadag',section:'Girls',coords:['Vidya Naik']},
+  {id:'g07',name:'Kondapaka',section:'Girls',coords:['Manisha']},
+  {id:'g08',name:'Dindigul',section:'Girls',coords:['Sai Mahima']},
+  {id:'g09',name:'Jayapura (Girls)',section:'Girls',coords:['Sakshi','Apoorva']},
+  {id:'g10',name:'NKH Pre University',section:'Girls',coords:['Boramma']},
+];
+const SEED_ROSTERS={g09:['Apoorva MR','Adithi MJ','Rakshitha','Sakshi Katti','Joshika','Hema HS','Sushmitha','Kavya','Chaithra','Annapourna B','Chaithra MR','Chitra','Shreelakshmi','Srujana','Shravya','Yasheswini','Prajna','Harshitha','Manasa','Durga','Chaya','Annapurna Shankar','Vani Shetty','Surekha','Latha','Geetanjali','Duvvu Vaishnavi','Nanditha','Bhakthi','Spoorthi']};
+const STATUSES=[{k:'P',label:'Present'},{k:'La',label:'Late'},{k:'A',label:'Absent'},{k:'L',label:'Leave'},{k:'OD',label:'On Duty'}];
+const STATUS_LABEL={P:'Present',La:'Late',A:'Absent',L:'Leave',OD:'On Duty'};
+const DEMO_CODES={'DEMO-MASTER':{type:'master',label:'Master HOD'},'DEMO-BOYS':{type:'boys',label:'Boys HOD'},'DEMO-GIRLS':{type:'girls',label:'Girls HOD'},'DEMO-JAYG':{type:'campus',id:'g09'}};
+
+const LS={cfg:'ssslsg_cfg',rosters:'ssslsg_rosters',records:'ssslsg_records',sublog:'ssslsg_sublog',session:'ssslsg_session'};
+let cfg=load(LS.cfg,{scriptUrl:DEFAULT_SCRIPT_URL,deadline:'09:00'});
+if(!cfg.scriptUrl&&DEFAULT_SCRIPT_URL)cfg.scriptUrl=DEFAULT_SCRIPT_URL;
+let rosters=load(LS.rosters,null);
+if(!rosters){rosters={};for(const id in SEED_ROSTERS)rosters[id]=SEED_ROSTERS[id].slice();save(LS.rosters,rosters);}
+let records=load(LS.records,{}),sublog=load(LS.sublog,{}),session=load(LS.session,null);
+let curCampus=null,curSession='M',working={M:{},E:{}},curSection=null,sessionView='Both';
+
+var _mem={};
+function load(k,def){try{var raw=localStorage.getItem(k);if(raw==null&&(k in _mem))raw=_mem[k];var v=raw?JSON.parse(raw):null;return v??def;}catch(e){try{return _mem[k]?JSON.parse(_mem[k]):def;}catch(e2){return def;}}}
+function save(k,v){var str=JSON.stringify(v);_mem[k]=str;try{localStorage.setItem(k,str);}catch(e){}}
+function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function monthStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+function fmtDate(s){const[y,m,d]=s.split('-');return new Date(y,m-1,d).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
+function getCampusYM(){const y=document.getElementById('campusYear'),m=document.getElementById('campusMonthSel');return(y&&m&&y.value&&m.value)?y.value+'-'+m.value:monthStr();}
+function setCampusYM(ym){const[yr,mo]=ym.split('-');const y=document.getElementById('campusYear'),m=document.getElementById('campusMonthSel');if(y)y.value=yr;if(m)m.value=mo;}
+function populateCampusMonthSelects(){const yr=document.getElementById('campusYear'),mo=document.getElementById('campusMonthSel');if(!yr||!mo)return;const now=new Date(),cy=now.getFullYear();yr.innerHTML='';for(let y=cy-1;y<=cy+1;y++)yr.innerHTML+=`<option value="${y}">${y}</option>`;mo.innerHTML=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].map((n,i)=>`<option value="${String(i+1).padStart(2,'0')}">${n}</option>`).join('');}
+function campusById(id){return CAMPUSES.find(c=>c.id===id);}
+function scopeLabel(sc){if(sc.type==='campus')return campusById(sc.id)?campusById(sc.id).name:sc.id;return sc.label||({boys:'Boys HOD',girls:'Girls HOD',master:'Master HOD'}[sc.type]);}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.add('hidden'));document.getElementById(id).classList.remove('hidden');window.scrollTo({top:0,behavior:'smooth'});}
+function statCard(lab,val,sub,cls){return `<div class="stat ${cls||''}"><div class="lab">${lab}</div><div class="val">${val}</div><div class="sub">${sub}</div></div>`;}
+
+/* ===== AUTH ===== */
+function submitCode(){
+  const code=document.getElementById('codeInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const err=document.getElementById('gateErr');err.textContent='';
+  if(!code){err.textContent='Please enter your code.';return;}
+  const btn=document.getElementById('gateBtn');btn.disabled=true;btn.textContent='Checking…';
+  if(cfg.scriptUrl){
+    const _ctrl=new AbortController();const _t=setTimeout(()=>_ctrl.abort(),8000);
+    fetch(cfg.scriptUrl+'?action=auth&code='+encodeURIComponent(code)+'&_='+Date.now(),{signal:_ctrl.signal})
+      .then(r=>r.json()).then(d=>{clearTimeout(_t);btn.disabled=false;btn.textContent='Continue';
+        if(d&&d.ok&&d.scope)grantAccess(code,d.scope);else{err.textContent='Invalid code. Please check with your HOD.';toast('Invalid code — please check with your HOD.','bad');}})
+      .catch(()=>{clearTimeout(_t);btn.disabled=false;btn.textContent='Continue';err.textContent='Cannot reach server — check internet.';toast('Cannot reach server — check internet.','bad');});
+  }else{btn.disabled=false;btn.textContent='Continue';const sc=DEMO_CODES[code];
+    if(sc){grantAccess(code,sc);toast('Demo mode — access control is off until Google Sheets is connected.','bad');}
+    else{err.textContent='Sync not set up. Use a DEMO code or open Setup.';toast('No server URL set — open Setup first.','bad');}}
+}
+function grantAccess(code,scope){session={code,scope};save(LS.session,session);bootSession();}
+function signOut(){session=null;delete _mem[LS.session];try{localStorage.removeItem(LS.session);}catch(e){}stopPolling();
+  document.getElementById('scopeChip').classList.add('hidden');document.getElementById('signoutBtn').classList.add('hidden');
+  document.getElementById('codeInput').value='';show('scr-gate');}
+function bootSession(){const sc=session.scope;
+  document.getElementById('scopeChip').textContent=scopeLabel(sc);document.getElementById('scopeChip').classList.remove('hidden');
+  document.getElementById('signoutBtn').classList.remove('hidden');document.getElementById('settingsBtn').classList.remove('hidden');
+  if(sc.type==='campus')openCampus(sc.id);else openHOD(sc.type);
+  refreshData(false);startPolling();}
+
+/* ===== CAMPUS ===== */
+let clockTimer=null;
+function openCampus(id){curCampus=id;const c=campusById(id);
+  document.getElementById('campusName').textContent=c.name;
+  document.getElementById('campusSection').textContent=c.section+' Campus';
+  document.getElementById('coordWho').innerHTML=c.coords.map(n=>`<option>${n}</option>`).join('');
+  populateCampusMonthSelects();setCampusYM(monthStr());
+  loadWorking();campusTab('mark');show('scr-campus');}
+function campusTab(t){document.getElementById('navMark').classList.toggle('active',t==='mark');document.getElementById('navDash').classList.toggle('active',t==='dash');
+  document.getElementById('campusMark').classList.toggle('hidden',t!=='mark');document.getElementById('campusDash').classList.toggle('hidden',t!=='dash');
+  if(t==='mark'){curSession='M';switchSession('M');startClock();}else renderCampusDash();}
+function loadWorking(){working={M:{},E:{}};const roster=rosters[curCampus]||[];
+  ['M','E'].forEach(s=>roster.forEach(t=>{const r=records[`${todayStr()}|${curCampus}|${s}|${t}`];if(r)working[s][t]={status:r.status,od:r.od||''};}));}
+function startClock(){clearInterval(clockTimer);const tick=()=>{const d=new Date();
+  document.getElementById('dtDate').textContent=d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+  document.getElementById('dtTime').textContent=d.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('dtDeadline').textContent=fmtDeadline();updateLock();};tick();clockTimer=setInterval(tick,1000);}
+function fmtDeadline(){const[h,m]=cfg.deadline.split(':');const hh=+h;const ap=hh>=12?'PM':'AM';const h12=((hh+11)%12)+1;return `${h12}:${m} ${ap}`;}
+function isOpen(){const[h,m]=cfg.deadline.split(':').map(Number);const d=new Date();return (d.getHours()*60+d.getMinutes())<(h*60+m);}
+function dayFinalized(date){if(date<todayStr())return true;if(date===todayStr())return !isOpen();return false;}
+function firstActive(id){let mn=null;Object.keys(sublog).forEach(k=>{const a=k.split('|');if(a[1]===id&&(!mn||a[0]<mn))mn=a[0];});Object.keys(records).forEach(k=>{const a=k.split('|');if(a[1]===id&&(!mn||a[0]<mn))mn=a[0];});return mn;}
+function autoAbsentDay(date,id){if(!dayFinalized(date))return false;const fa=firstActive(id);return !!fa&&date>=fa;}
+function updateLock(){const open=isOpen(),banner=document.getElementById('lockBanner'),btn=document.getElementById('submitBtn');
+  if(open){banner.className='lock-banner open';banner.querySelector('.bic').textContent='✓';document.getElementById('lockMsg').innerHTML=`<b>Submission is open.</b> Mark both sessions and submit before ${fmtDeadline()}.`;btn.disabled=false;document.getElementById('submitHint').textContent='';}
+  else{banner.className='lock-banner shut';banner.querySelector('.bic').textContent='⏳';document.getElementById('lockMsg').innerHTML=`<b>Submission is closed for today.</b> The ${fmtDeadline()} deadline has passed.`;btn.disabled=true;document.getElementById('submitHint').textContent='Deadline passed.';}}
+function switchSession(s){curSession=s;document.getElementById('tabM').classList.toggle('active',s==='M');document.getElementById('tabE').classList.toggle('active',s==='E');renderTeachers();}
+function renderTeachers(){const roster=rosters[curCampus]||[],list=document.getElementById('teacherList');
+  if(!roster.length){list.innerHTML=`<div class="empty"><div class="big">📋</div>No teachers added yet.<br><button class="btn btn-primary" style="margin-top:14px" onclick="manageRoster()">Add teachers</button></div>`;updateCounts();return;}
+  list.innerHTML=roster.map(t=>{const cur=working[curSession][t]||{status:'',od:''};
+    return `<div class="teacher-row"><div class="t-name">${t}</div><div class="status-seg">${STATUSES.map(st=>`<button class="seg s-${st.k} ${cur.status===st.k?'on':''}" onclick="setStatus('${cssEsc(t)}','${st.k}')">${st.label}</button>`).join('')}</div>${(cur.status&&cur.status!=='P')?`<div class="od-wrap"><input class="od-note" placeholder="${{'La':'Reason for being late','A':'Reason for absence','L':'Leave details (type / dates)','OD':'On-Duty details (e.g. Exam duty at Muddenahalli)'}[cur.status]||'Details'}" value="${(cur.od||'').replace(/"/g,'&quot;')}" oninput="setOD('${cssEsc(t)}',this.value)"></div>`:''}</div>`;}).join('');
+  updateCounts();}
+function cssEsc(s){return s.replace(/'/g,"\\'");}
+function setStatus(t,k){if(!working[curSession][t])working[curSession][t]={};working[curSession][t].status=k;if(k===''||k==='P')working[curSession][t].od='';renderTeachers();}
+function setOD(t,v){if(!working[curSession][t])working[curSession][t]={};working[curSession][t].od=v;}
+function bulkSet(k){(rosters[curCampus]||[]).forEach(t=>working[curSession][t]={status:k,od:''});renderTeachers();}
+function updateCounts(){const roster=rosters[curCampus]||[];
+  ['M','E'].forEach(s=>{const done=roster.filter(t=>working[s][t]&&working[s][t].status).length;document.getElementById('cnt'+s).textContent=roster.length?`${done}/${roster.length}`:'';});
+  const done=roster.filter(t=>working[curSession][t]&&working[curSession][t].status).length;
+  document.getElementById('markedInfo').textContent=roster.length?`${done} of ${roster.length} marked`:'';}
+function submitAttendance(){if(!isOpen()){toast('Deadline passed — cannot submit.','bad');return;}
+  const roster=rosters[curCampus]||[];if(!roster.length){toast('Add teachers first.','bad');return;}
+  const noteLabel={La:'reason for being late',A:'reason for absence',L:'leave details',OD:'On-Duty details'};
+  for(const s of['M','E'])for(const t of roster){const w=working[s][t];if(w&&w.status&&w.status!=='P'&&!(w.od||'').trim()){toast(`Add ${noteLabel[w.status]||'details'} for ${t} (${s==='M'?'Morning':'Evening'}).`,'bad');switchSession(s);return;}}
+  const unmarked=roster.filter(t=>!(working.M[t]&&working.M[t].status)||!(working.E[t]&&working.E[t].status));
+  const doSubmit=()=>{const who=document.getElementById('coordWho').value,date=todayStr(),now=new Date().toISOString(),payload=[];
+    ['M','E'].forEach(s=>roster.forEach(t=>{const w=working[s][t];if(!w||!w.status)return;
+      const rec={date,campus:curCampus,campusName:campusById(curCampus).name,section:campusById(curCampus).section,session:s,teacher:t,status:w.status,od:w.od||'',by:who,ts:now};
+      records[`${date}|${curCampus}|${s}|${t}`]=rec;payload.push(rec);}));
+    sublog[`${date}|${curCampus}`]={status:isOpen()?'S':'L',by:who,ts:now,count:payload.length/2};
+    save(LS.records,records);save(LS.sublog,sublog);pushToSheet(payload,sublog[`${date}|${curCampus}`]);pushRoster(curCampus);closeModal();toast('Attendance submitted ✓','ok');};
+  if(unmarked.length)confirmModal('Some teachers not marked',`${unmarked.length} teacher(s) have a blank status in one or both sessions. Submit anyway? You can re-open and update before the deadline.`,'Submit anyway',doSubmit);
+  else doSubmit();}
+
+let cdChart=null;
+function monthRecords(id,ym){const out=[];Object.keys(records).forEach(k=>{const[d,c]=k.split('|');if(c===id&&d.startsWith(ym))out.push(records[k]);});return out;}
+function renderCampusDash(){const id=curCampus,ym=getCampusYM();
+  document.getElementById('cdMonthLbl').textContent='— '+new Date(ym+'-01').toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  const recs=monthRecords(id,ym);const roster=rosters[id]||[...new Set(recs.map(r=>r.teacher))];const cnt={P:0,La:0,A:0,L:0,OD:0},tt={};roster.forEach(t=>tt[t]={P:0,La:0,A:0,L:0,OD:0});
+  const[yy,mm]=ym.split('-').map(Number),days=new Date(yy,mm,0).getDate();
+  let sub=0,late=0,miss=0,running=0,streak=0;
+  for(let d=1;d<=days;d++){const ds=`${yy}-${String(mm).padStart(2,'0')}-${String(d).padStart(2,'0')}`,s=sublog[`${ds}|${id}`],auto=autoAbsentDay(ds,id);
+    if(s){if(s.status==='S'){sub++;running++;}else if(s.status==='L'){late++;running++;}streak=running;}
+    else if(auto){miss++;running=0;}
+    if(s||auto){['M','E'].forEach(se=>roster.forEach(t=>{const r=records[`${ds}|${id}|${se}|${t}`];
+      if(r){if(cnt[r.status]!=null)cnt[r.status]++;if(tt[t]&&tt[t][r.status]!=null)tt[t][r.status]++;}
+      else if(!s&&auto){cnt.A++;if(tt[t])tt[t].A++;}}));}}
+  const marked=cnt.P+cnt.La+cnt.A+cnt.L+cnt.OD;
+  document.getElementById('campusStats').innerHTML=`${statCard('Submitted on time',sub,'days this month','s-ok')}${statCard('Late',late,'days','s-warn')}${statCard('Missed',miss,'days (up to today)','s-bad')}${statCard('Current streak',streak,'days in a row','')}${statCard('Present',cnt.P,marked?Math.round(cnt.P/marked*100)+'% of marks':'—','s-ok')}${statCard('Absent + Leave',cnt.A+cnt.L,'marks this month','s-warn')}`;
+  let strip='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(30px,1fr));gap:5px">';
+  for(let d=1;d<=days;d++){const ds=`${yy}-${String(mm).padStart(2,'0')}-${String(d).padStart(2,'0')}`,s=sublog[`${ds}|${id}`],auto=autoAbsentDay(ds,id);
+    const cls=s?(s.status==='S'?'d-S':s.status==='L'?'d-L':'d-N'):(auto?'d-N':'d-_'),lab=s?(s.status==='S'?'✓':s.status==='L'?'L':'✗'):(auto?'✗':'·');
+    strip+=`<div class="daybox ${cls}" title="${ds}">${d}</div>`;}
+  strip+='</div>';document.getElementById('cdTracker').innerHTML=strip;
+  const ctx=document.getElementById('cdChart'),data=[cnt.P,cnt.La,cnt.OD,cnt.L,cnt.A];if(cdChart)cdChart.destroy();
+  if(data.some(x=>x))cdChart=new Chart(ctx,{type:'doughnut',data:{labels:['Present','Late','On Duty','Leave','Absent'],datasets:[{data,backgroundColor:['#1E8449','#C0392B','#C0392B','#C0392B','#C0392B'],borderWidth:2,borderColor:'#fff'}]},options:{plugins:{legend:{position:'bottom',labels:{font:{family:'Spline Sans',size:12},padding:12,usePointStyle:true}}},cutout:'60%',maintainAspectRatio:false}});
+  else ctx.parentElement.innerHTML='<div class="empty"><div class="big">📊</div>No attendance marked this month.</div>';
+  const tbody=document.querySelector('#cdTeacherTable tbody');
+  tbody.innerHTML=roster.length?roster.map(t=>`<tr><td><b>${t}</b></td><td>${tt[t].P}</td><td>${tt[t].A||'<span class=muted>0</span>'}</td><td>${tt[t].L||'<span class=muted>0</span>'}</td><td>${tt[t].OD||'<span class=muted>0</span>'}</td></tr>`).join(''):`<tr><td colspan="5"><div class="empty">No teacher data.</div></td></tr>`;
+  const ranked=roster.map(t=>({t,n:tt[t].A+tt[t].L})).filter(x=>x.n>0).sort((a,b)=>b.n-a.n).slice(0,8);
+  document.getElementById('cdTopAbsent').innerHTML=ranked.length?ranked.map(x=>{const max=ranked[0].n||1;return `<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;font-size:13.5px;margin-bottom:4px"><span><b>${x.t}</b></span><span class="muted">${x.n} day(s)</span></div><div class="mini-bar"><i class="b-A" style="width:${x.n/max*100}%"></i></div></div>`;}).join(''):`<div class="empty" style="padding:30px"><div class="big">🎉</div>No absences or leave this month.</div>`;}
+
+/* ===== HOD ===== */
+function openHOD(type){curSection=type==='master'?'Master':type==='boys'?'Boys':'Girls';
+  document.getElementById('hodDate').value=todayStr();
+  const titles={Boys:'Boys Campuses Dashboard',Girls:'Girls Campuses Dashboard',Master:'Master HOD Dashboard'};
+  document.getElementById('hodTitle').textContent=titles[curSection];
+  const n=curSection==='Master'?CAMPUSES.length:CAMPUSES.filter(c=>c.section===curSection).length;
+  document.getElementById('hodScope').textContent=n+' campuses';show('scr-hod');renderHOD();}
+function scopeCampuses(){return curSection==='Master'?CAMPUSES:CAMPUSES.filter(c=>c.section===curSection);}
+function setSessionView(v){sessionView=v;['Both','M','E'].forEach(x=>document.getElementById('seg'+x).classList.toggle('active',x===v));renderHOD();}
+function recsFor(date,campusId){const out=[],sessions=sessionView==='Both'?['M','E']:[sessionView],roster=rosters[campusId]||[];
+  const auto=autoAbsentDay(date,campusId),sub=sublog[`${date}|${campusId}`];
+  if(roster.length){sessions.forEach(s=>roster.forEach(t=>{const r=records[`${date}|${campusId}|${s}|${t}`];
+    if(r)out.push(r);else if(auto&&!sub)out.push({date,campus:campusId,session:s,teacher:t,status:'A',od:'',by:'',ts:'',auto:true});}));}
+  else Object.keys(records).forEach(k=>{const[d,c,s]=k.split('|');if(d===date&&c===campusId&&sessions.includes(s))out.push(records[k]);});return out;}
+function renderHOD(){const date=document.getElementById('hodDate').value||todayStr(),camps=scopeCampuses(),filter=document.getElementById('hodStatusFilter').value;
+  let tot={P:0,La:0,A:0,L:0,OD:0},submitted=0,late=0,pending=0,marked=0;
+  camps.forEach(c=>{const sub=sublog[`${date}|${c.id}`];if(sub){if(sub.status==='S')submitted++;else if(sub.status==='L')late++;}else pending++;
+    recsFor(date,c.id).forEach(r=>{if(tot[r.status]!=null){tot[r.status]++;marked++;}});});
+  document.getElementById('statGrid').innerHTML=`${statCard('Campuses',camps.length,'reporting to you','')}${statCard('Submitted',submitted,late?`+${late} late`:'on time','s-ok')}${statCard('Pending',pending,pending?'not yet submitted':'all in ✓','s-bad')}${statCard('Present',tot.P,marked?Math.round(tot.P/marked*100)+'% of marked':'—','s-ok')}${statCard('Absent',tot.A,'today','s-warn')}${statCard('On Duty',tot.OD,'today','s-info')}`;
+  drawStatusChart(tot);drawSubmitChart(submitted,late,pending);
+  const tb=document.querySelector('#campusTable tbody');
+  let rows=camps.map(c=>{const sub=sublog[`${date}|${c.id}`],rs=recsFor(date,c.id),cnt={P:0,La:0,A:0,L:0,OD:0};
+    rs.forEach(r=>{if(cnt[r.status]!=null)cnt[r.status]++;});const total=rs.length;
+    if(filter&&!rs.some(r=>r.status===filter))return null;
+    const subTag=!sub?`<span class="tag bad">✗ Pending</span>`:sub.status==='L'?`<span class="tag warn">⏱ Late</span>`:`<span class="tag ok">✓ ${new Date(sub.ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</span>`;
+    const mix=total?`<div class="mini-bar">${['P','La','OD','L','A'].map(k=>cnt[k]?`<i class="b-${k}" style="width:${cnt[k]/total*100}%"></i>`:'').join('')}</div>`:'<span class="muted">—</span>';
+    const iss=(cnt.A+cnt.L)?`<span class="tag ${cnt.A?'bad':'warn'}">${cnt.A?cnt.A+' abs':''}${cnt.A&&cnt.L?', ':''}${cnt.L?cnt.L+' leave':''}</span>`:'<span class="muted">none</span>';
+    return `<tr class="row-click" onclick="openCampusDetail('${c.id}','${date}')"><td><b>${c.name}</b><br><span class="muted" style="font-size:12px">${c.section}</span></td><td>${sub?sub.by:c.coords.join(' / ')}</td><td>${subTag}</td><td>${total?`<b>${cnt.P}</b>/${total}`:'<span class="muted">—</span>'}</td><td>${iss}</td><td>${mix}</td></tr>`;}).filter(Boolean);
+  tb.innerHTML=rows.length?rows.join(''):`<tr><td colspan="6"><div class="empty"><div class="big">🗓️</div>No data for ${fmtDate(date)} yet.</div></td></tr>`;
+  renderTracker(camps);}
+let chartStatus=null,chartSubmit=null;
+function drawStatusChart(t){const ctx=document.getElementById('chartStatus'),data=[t.P,t.La,t.OD,t.L,t.A];if(chartStatus)chartStatus.destroy();
+  chartStatus=data.some(x=>x)?new Chart(ctx,{type:'doughnut',data:{labels:['Present','Late','On Duty','Leave','Absent'],datasets:[{data,backgroundColor:['#1E8449','#C0392B','#C0392B','#C0392B','#C0392B'],borderWidth:2,borderColor:'#fff'}]},options:{plugins:{legend:{position:'bottom',labels:{font:{family:'Spline Sans',size:12},padding:14,usePointStyle:true}}},cutout:'62%',maintainAspectRatio:false}}):null;}
+function drawSubmitChart(s,l,p){const ctx=document.getElementById('chartSubmit');if(chartSubmit)chartSubmit.destroy();
+  chartSubmit=new Chart(ctx,{type:'bar',data:{labels:['Submitted','Late','Pending'],datasets:[{data:[s,l,p],backgroundColor:['#1E8449','#B7791F','#C0392B'],borderRadius:8,barThickness:54}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{precision:0,font:{family:'Spline Sans'}},grid:{color:'#F0E9DD'}},x:{grid:{display:false},ticks:{font:{family:'Spline Sans',size:13}}}},maintainAspectRatio:false}});}
+function renderTracker(camps){const date=document.getElementById('hodDate').value||todayStr(),[y,m]=date.split('-').map(Number),days=new Date(y,m,0).getDate();
+  document.getElementById('trackerMonth').textContent='— '+new Date(y,m-1,1).toLocaleDateString('en-IN',{month:'long',year:'numeric'});
+  let html='<div style="overflow-x:auto"><table style="font-size:12px"><thead><tr><th style="position:sticky;left:0;background:var(--card)">Campus</th>';
+  for(let d=1;d<=days;d++)html+=`<th style="text-align:center;padding:6px 4px">${d}</th>`;html+='</tr></thead><tbody>';
+  camps.forEach(c=>{html+=`<tr><td style="white-space:nowrap;position:sticky;left:0;background:var(--card)"><b>${c.name}</b></td>`;
+    for(let d=1;d<=days;d++){const ds=`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`,sub=sublog[`${ds}|${c.id}`],auto=autoAbsentDay(ds,c.id);
+      const cls=sub?(sub.status==='S'?'d-S':sub.status==='L'?'d-L':'d-N'):(auto?'d-N':'d-_'),lab=sub?(sub.status==='S'?'S':sub.status==='L'?'L':'N'):(auto?'N':'·');
+      html+=`<td style="padding:2px"><div class="daybox ${cls}" title="${c.name} · ${ds}">${lab}</div></td>`;}
+    html+='</tr>';});html+='</tbody></table></div>';document.getElementById('tracker').innerHTML=html;}
+function openCampusDetail(id,date){const c=campusById(id),sessions=sessionView==='Both'?['M','E']:[sessionView],roster=rosters[id]||[];
+  const rosterShown=roster.length?roster:[...new Set(Object.keys(records).filter(k=>{const[d,cc]=k.split('|');return d===date&&cc===id;}).map(k=>k.split('|')[3]))];
+  const auto=autoAbsentDay(date,id),hasSub=!!sublog[`${date}|${id}`];
+  let body;if(!rosterShown.length)body=`<div class="empty"><div class="big">📋</div>No attendance recorded on ${fmtDate(date)}.</div>`;
+  else{body=`<table><thead><tr><th>Teacher</th>${sessions.map(s=>`<th>${s==='M'?'Morning':'Evening'}</th>`).join('')}<th>Details</th></tr></thead><tbody>`;
+    rosterShown.forEach(t=>{let od='';const cells=sessions.map(s=>{const r=records[`${date}|${id}|${s}|${t}`];if(!r)return (auto&&!hasSub)?'<td><span class="pill" style="background:var(--bad-soft);color:var(--bad)">Absent</span></td>':'<td><span class="muted">—</span></td>';if(r.status==='OD'&&r.od)od=r.od;return `<td><span class="pill" style="background:var(--${cMap(r.status)}-soft);color:var(--${cMap(r.status)})">${STATUS_LABEL[r.status]}</span></td>`;}).join('');
+      body+=`<tr><td><b>${t}</b></td>${cells}<td class="muted" style="font-size:12.5px">${od||''}</td></tr>`;});body+='</tbody></table>';}
+  const sub=sublog[`${date}|${id}`],subInfo=sub?`Submitted by <b>${sub.by}</b> at ${new Date(sub.ts).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}${sub.status==='L'?' (late)':''}`:'Not yet submitted';
+  modal(c.name,`<div class="note" style="margin-bottom:16px">${c.section} campus · ${fmtDate(date)}<br>${subInfo}</div>${body}`);}
+function cMap(s){return {P:'ok',La:'warn',A:'bad',L:'leave',OD:'od'}[s]||'info';}
+
+/* ===== SYNC ===== */
+function updateSyncBadge(){const dot=document.getElementById('syncDot'),txt=document.getElementById('syncTxt');
+  if(cfg.scriptUrl){dot.classList.add('live');txt.textContent='Synced';}else{dot.classList.remove('live');txt.textContent='Local';}}
+function pushToSheet(rows,sub){if(!cfg.scriptUrl||!session)return;
+  fetch(cfg.scriptUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'submit',code:session.code,rows,sub})}).catch(()=>toast('Saved locally — sync will retry.','bad'));}
+function pushRoster(id){if(!cfg.scriptUrl||!session)return;fetch(cfg.scriptUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'roster',code:session.code,campus:id,teachers:rosters[id]||[]})}).catch(()=>{});}
+function refreshData(showToast){if(!cfg.scriptUrl||!session){if(showToast)toast('Local mode — connect Google Sheets to sync.','bad');rerender();return;}
+  fetch(cfg.scriptUrl+'?action=fetch&code='+encodeURIComponent(session.code)+'&_='+Date.now()).then(r=>r.json()).then(d=>{
+    (d.records||[]).forEach(r=>{records[`${r.date}|${r.campus}|${r.session}|${r.teacher}`]=r;});
+    (d.submissions||[]).forEach(s=>{sublog[`${s.date}|${s.campus}`]={status:s.status,by:s.by,ts:s.ts,count:s.count};});
+    if(d.rosters){Object.keys(d.rosters).forEach(cid=>{if(cid!==curCampus||!(rosters[cid]&&rosters[cid].length))rosters[cid]=d.rosters[cid];});save(LS.rosters,rosters);}
+    save(LS.records,records);save(LS.sublog,sublog);rerender();if(showToast)toast('Data refreshed','ok');})
+   .catch(()=>{if(showToast)toast('Could not reach Google Sheet.','bad');rerender();});}
+function rerender(){if(!session)return;if(session.scope.type==='campus'){if(!document.getElementById('campusDash').classList.contains('hidden'))renderCampusDash();}else renderHOD();}
+let pollTimer=null;function startPolling(){stopPolling();if(cfg.scriptUrl)pollTimer=setInterval(()=>refreshData(false),60000);}
+function stopPolling(){clearInterval(pollTimer);}
+
+/* ===== EXPORT / ROSTER / SETTINGS / MODAL ===== */
+function exportCSV(){const date=document.getElementById('hodDate').value||todayStr(),camps=scopeCampuses();
+  let csv='Date,Section,Campus,Coordinator,Submission,Teacher,Session,Status,OnDuty Details\n';
+  camps.forEach(c=>{const sub=sublog[`${date}|${c.id}`],subTxt=sub?(sub.status==='S'?'Submitted':sub.status==='L'?'Late':'?'):'Pending';
+    const auto=autoAbsentDay(date,c.id),hasSub=!!sub;
+    ['M','E'].forEach(s=>(rosters[c.id]||[]).forEach(t=>{const r=records[`${date}|${c.id}|${s}|${t}`];
+      if(r)csv+=[date,c.section,q(c.name),q(sub?sub.by:''),subTxt,q(t),s==='M'?'Morning':'Evening',STATUS_LABEL[r.status],q(r.od||'')].join(',')+'\n';
+      else if(auto&&!hasSub)csv+=[date,c.section,q(c.name),q(sub?sub.by:''),subTxt,q(t),s==='M'?'Morning':'Evening','Absent',''].join(',')+'\n';}));});
+  const blob=new Blob([csv],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`Attendance_${curSection}_${date}.csv`;a.click();toast('CSV exported','ok');}
+function q(s){s=(s||'').toString();return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function manageRoster(){const id=curCampus;if(!id)return;const c=campusById(id),list=(rosters[id]||[]).slice();
+  const render=()=>list.map((t,i)=>`<div class="roster-item"><input value="${(t||'').replace(/"/g,'&quot;')}" onchange="window.__roster[${i}]=this.value"><button onclick="window.__rosterDel(${i})">×</button></div>`).join('');
+  window.__roster=list;window.__rosterDel=(i)=>{list.splice(i,1);document.getElementById('rosterList').innerHTML=render();};
+  window.__rosterAdd=()=>{list.push('');document.getElementById('rosterList').innerHTML=render();const ins=document.querySelectorAll('#rosterList input');if(ins.length)ins[ins.length-1].focus();};
+  window.__rosterSave=()=>{rosters[id]=window.__roster.map(x=>(x||'').trim()).filter(Boolean);save(LS.rosters,rosters);pushRoster(id);closeModal();loadWorking();renderTeachers();toast('Teacher list saved','ok');};
+  modal(`Teachers · ${c.name}`,`<div class="note" style="margin-bottom:14px">Add or edit teachers who attend prayer at this campus. Stored on this device.</div><div id="rosterList">${render()}</div><button class="btn btn-ghost" style="margin-top:12px;width:100%" onclick="window.__rosterAdd()">+ Add teacher</button>`,`<button class="btn btn-primary" onclick="window.__rosterSave()">Save list</button>`);}
+function openSettings(){modal('Settings',
+   `<div class="field"><label>Google Apps Script Web App URL</label><input id="setUrl" placeholder="https://script.google.com/macros/s/..../exec" value="${(cfg.scriptUrl||'').replace(/"/g,'&quot;')}"></div>
+    <div class="field"><label>Submission deadline (24-hour)</label><input id="setDeadline" type="time" value="${cfg.deadline}"></div>
+    <div class="note"><b>One-time setup:</b><br>1. Create a Google Sheet → Extensions → Apps Script → paste the provided code → Save.<br>2. Run <b>setupAccessCodes</b> once (creates codes in an "AccessCodes" tab).<br>3. Deploy → Web app → Execute as <b>Me</b>, Access <b>Anyone</b> → copy the <b>/exec</b> URL.<br>4. Paste it above (or bake into the file's <b>DEFAULT_SCRIPT_URL</b>) and share the file. Give each campus/HOD their code from the AccessCodes tab.</div>`,
+   `<button class="btn btn-primary" onclick="saveSettings()">Save</button>`);}
+function saveSettings(){cfg.scriptUrl=document.getElementById('setUrl').value.trim();cfg.deadline=document.getElementById('setDeadline').value||'09:00';
+  save(LS.cfg,cfg);updateSyncBadge();closeModal();if(session){refreshData(true);startPolling();}toast('Settings saved','ok');}
+function modal(title,bodyHtml,footHtml){document.getElementById('modalMount').innerHTML=`<div class="overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h3>${title}</h3><button class="icon-btn" onclick="closeModal()">×</button></div><div class="modal-body">${bodyHtml}</div>${footHtml?`<div class="modal-body" style="padding-top:0;display:flex;gap:10px;justify-content:flex-end">${footHtml}</div>`:''}</div></div>`;}
+function confirmModal(title,msg,okLabel,onOk){window.__ok=onOk;modal(title,`<p style="font-size:15px;line-height:1.5">${msg}</p>`,`<button class="btn btn-ghost" onclick="closeModal()">Cancel</button><button class="btn btn-primary" onclick="(window.__ok&&window.__ok());">${okLabel}</button>`);}
+function closeModal(){document.getElementById('modalMount').innerHTML='';}
+function toast(msg,kind){const m=document.getElementById('toastMount');m.innerHTML=`<div class="toast ${kind||''}">${kind==='ok'?'✓':kind==='bad'?'⚠':'•'} ${msg}</div>`;setTimeout(()=>{m.innerHTML='';},2800);}
+
+/* ===== INIT ===== */
+updateSyncBadge();
+if(session&&session.scope)bootSession();else show('scr-gate');
+</script>
+</body>
+</html>
