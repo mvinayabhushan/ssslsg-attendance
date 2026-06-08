@@ -19,14 +19,14 @@
   --shadow-lg:0 12px 40px rgba(28,26,23,.12);
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{height:-webkit-fill-available}body{background:var(--paper);color:var(--ink);font-family:'Spline Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;min-height:100vh;min-height:-webkit-fill-available}
+html,body{background:var(--paper);color:var(--ink);font-family:'Spline Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
 h1,h2,h3,.display{font-family:'Fraunces',Georgia,serif}
 .hidden{display:none!important}
-button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-input,select,textarea{font-family:inherit;font-size:15px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit;font-size:15px}
 ::-webkit-scrollbar{height:9px;width:9px}::-webkit-scrollbar-thumb{background:#D8CFC1;border-radius:9px}
 
-.topbar{position:-webkit-sticky;position:sticky;top:0;z-index:40;background:rgba(251,247,241,.86);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;z-index:40;background:rgba(251,247,241,.86);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .topbar-in{max-width:1200px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:14px}
 .brand{display:flex;align-items:center;gap:11px;min-width:0}
 .mark{width:38px;height:38px;border-radius:11px;background:linear-gradient(150deg,var(--saffron),var(--saffron-deep));display:grid;place-items:center;color:#fff;font-family:'Fraunces';font-weight:700;font-size:19px;flex:none;box-shadow:0 4px 12px rgba(184,74,12,.3)}
@@ -41,9 +41,8 @@ input,select,textarea{font-family:inherit;font-size:15px;-webkit-tap-highlight-c
 .icon-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;color:var(--ink-soft);font-size:17px;transition:.15s}
 .icon-btn:hover{border-color:var(--saffron);color:var(--saffron)}
 
-.wrap{max-width:1200px;margin:0 auto;padding:24px 20px 80px;-webkit-overflow-scrolling:touch}
-.screen{-webkit-animation:rise .4s cubic-bezier(.2,.7,.3,1) both;animation:rise .4s cubic-bezier(.2,.7,.3,1) both;-webkit-animation-fill-mode:both;animation-fill-mode:both}
-@-webkit-keyframes rise{from{opacity:0;-webkit-transform:translateY(10px);transform:translateY(10px)}to{opacity:1;-webkit-transform:none;transform:none}}
+.wrap{max-width:1200px;margin:0 auto;padding:24px 20px 80px}
+.screen{animation:rise .4s cubic-bezier(.2,.7,.3,1)}
 @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
 .gate{min-height:72vh;display:grid;place-items:center}
@@ -58,14 +57,14 @@ input,select,textarea{font-family:inherit;font-size:15px;-webkit-tap-highlight-c
 .gate-foot button{color:var(--saffron-deep);font-weight:600;font-size:12.5px}
 .gate-foot button:hover{text-decoration:underline}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);-webkit-overflow-scrolling:touch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}
 .pad{padding:20px}
 .section-head{display:flex;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap}
 .section-head h2{font-size:23px;font-weight:600}
 .pill{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;letter-spacing:.02em}
 .muted{color:var(--ink-soft)}
 
-.subnav{display:-webkit-inline-flex;display:inline-flex;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--card);margin-bottom:22px;box-shadow:var(--shadow)}
+.subnav{display:inline-flex;border:1px solid var(--line);border-radius:13px;overflow:hidden;background:var(--card);margin-bottom:22px;box-shadow:var(--shadow)}
 .subnav button{padding:11px 20px;font-weight:600;font-size:14.5px;color:var(--ink-soft);display:flex;align-items:center;gap:8px;transition:.12s}
 .subnav button.active{background:var(--ink);color:#fff}
 
@@ -107,9 +106,9 @@ input,select,textarea{font-family:inherit;font-size:15px;-webkit-tap-highlight-c
 .bulk-bar button:hover{border-color:var(--ok);color:var(--ok)}
 
 .submit-row{display:flex;gap:12px;align-items:center;margin-top:22px;flex-wrap:wrap}
-.btn{padding:13px 22px;border-radius:12px;font-weight:600;font-size:15px;-webkit-transition:.15s;transition:.15s;display:-webkit-inline-flex;display:inline-flex;-webkit-align-items:center;align-items:center;gap:8px}
+.btn{padding:13px 22px;border-radius:12px;font-weight:600;font-size:15px;transition:.15s;display:inline-flex;align-items:center;gap:8px}
 .btn-primary{background:linear-gradient(150deg,var(--saffron),var(--saffron-deep));color:#fff;box-shadow:0 6px 18px rgba(184,74,12,.28)}
-.btn-primary:hover{-webkit-transform:translateY(-2px);transform:translateY(-2px);box-shadow:0 10px 26px rgba(184,74,12,.34)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(184,74,12,.34)}
 .btn-primary:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 .btn-ghost{border:1px solid var(--line);background:var(--card);color:var(--ink)}
 .btn-ghost:hover{border-color:var(--saffron)}
@@ -153,10 +152,9 @@ tr:last-child td{border-bottom:none}
 .empty{text-align:center;padding:50px 20px;color:var(--ink-soft)}
 .empty .big{font-size:40px;margin-bottom:10px}
 
-.overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(28,26,23,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);z-index:90;display:grid;place-items:center;padding:20px;-webkit-animation:fade .2s;animation:fade .2s}
-@-webkit-keyframes fade{from{opacity:0}to{opacity:1}}
+.overlay{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(28,26,23,.5);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);z-index:90;display:grid;place-items:center;padding:20px;animation:fade .2s}
 @keyframes fade{from{opacity:0}to{opacity:1}}
-.modal{background:var(--card);border-radius:18px;max-width:560px;width:100%;max-height:88vh;overflow:auto;-webkit-overflow-scrolling:touch;box-shadow:var(--shadow-lg);-webkit-animation:rise .3s;animation:rise .3s}
+.modal{background:var(--card);border-radius:18px;max-width:560px;width:100%;max-height:88vh;overflow:auto;box-shadow:var(--shadow-lg);animation:rise .3s}
 .modal-head{padding:20px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--card);z-index:2}
 .modal-head h3{font-size:19px;font-weight:600;flex:1}
 .modal-body{padding:22px}
@@ -175,8 +173,6 @@ tr:last-child td{border-bottom:none}
 .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
 @media(max-width:560px){.wrap{padding:18px 14px 70px}}
 @media(max-width:768px){input,select,textarea{font-size:16px!important}}
-@media(max-width:768px){.gate{min-height:0;display:block;padding:40px 0}.gate-card{margin:0 auto}}
-@media(hover:none){.btn-primary:hover{-webkit-transform:none;transform:none;box-shadow:0 6px 18px rgba(184,74,12,.28)}.icon-btn:hover{border-color:var(--line);color:var(--ink-soft)}.btn-ghost:hover{border-color:var(--line)}.row-click:hover{background:none}}
 </style>
 </head>
 <body>
@@ -205,10 +201,10 @@ tr:last-child td{border-bottom:none}
         <div class="gate-mark">ॐ</div>
         <h1>Enter your access code</h1>
         <p>Each campus and HOD has a private code. Your code opens only your own area.</p>
-        <input class="code-input" id="codeInput" maxlength="20" placeholder="CODE" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" inputmode="text"
+        <input class="code-input" id="codeInput" maxlength="20" placeholder="CODE" autocomplete="off"
                onkeydown="if(event.key==='Enter')submitCode()">
         <div class="gate-err" id="gateErr"></div>
-        <button class="btn btn-primary" style="width:100%;justify-content:center" id="gateBtn" onclick="submitCode()" ontouchend="event.preventDefault();submitCode()">Continue</button>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" id="gateBtn" onclick="submitCode()">Continue</button>
         <div class="gate-foot">Trouble signing in? Contact your HOD. · <button onclick="openSettings()">Setup / sync settings</button></div>
       </div>
     </div>
@@ -353,9 +349,8 @@ if(!rosters){rosters={};for(const id in SEED_ROSTERS)rosters[id]=SEED_ROSTERS[id
 let records=load(LS.records,{}),sublog=load(LS.sublog,{}),session=load(LS.session,null);
 let curCampus=null,curSession='M',working={M:{},E:{}},curSection=null,sessionView='Both';
 
-var _mem={};
-function load(k,def){try{var raw=localStorage.getItem(k);if(raw==null&&(k in _mem))raw=_mem[k];var v=raw?JSON.parse(raw):null;return v??def;}catch(e){try{return _mem[k]?JSON.parse(_mem[k]):def;}catch(e2){return def;}}}
-function save(k,v){var str=JSON.stringify(v);_mem[k]=str;try{localStorage.setItem(k,str);}catch(e){}}
+function load(k,def){try{const v=JSON.parse(localStorage.getItem(k));return v??def;}catch(e){return def;}}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));}
 function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function monthStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
 function fmtDate(s){const[y,m,d]=s.split('-');return new Date(y,m-1,d).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
@@ -376,14 +371,14 @@ function submitCode(){
   if(cfg.scriptUrl){
     fetch(cfg.scriptUrl+'?action=auth&code='+encodeURIComponent(code)+'&_='+Date.now())
       .then(r=>r.json()).then(d=>{btn.disabled=false;btn.textContent='Continue';
-        if(d&&d.ok&&d.scope)grantAccess(code,d.scope);else{err.textContent='Invalid code. Please check with your HOD.';toast('Invalid code — please check with your HOD.','bad');}})
-      .catch(()=>{btn.disabled=false;btn.textContent='Continue';err.textContent='Cannot reach server — check internet.';toast('Cannot reach server — check internet.','bad')});
+        if(d&&d.ok&&d.scope)grantAccess(code,d.scope);else err.textContent='Invalid code. Please check with your HOD.';})
+      .catch(()=>{btn.disabled=false;btn.textContent='Continue';err.textContent='Cannot reach the server. Check your internet.';});
   }else{btn.disabled=false;btn.textContent='Continue';const sc=DEMO_CODES[code];
     if(sc){grantAccess(code,sc);toast('Demo mode — access control is off until Google Sheets is connected.','bad');}
-    else{err.textContent='Sync not set up. Use a DEMO code or open Setup.';toast('No server URL set — open Setup first.','bad');}}
+    else err.textContent='Sync not set up. Use a DEMO code (e.g. DEMO-MASTER) to preview, or open Setup.';}
 }
 function grantAccess(code,scope){session={code,scope};save(LS.session,session);bootSession();}
-function signOut(){session=null;delete _mem[LS.session];try{localStorage.removeItem(LS.session);}catch(e){}stopPolling();
+function signOut(){session=null;localStorage.removeItem(LS.session);stopPolling();
   document.getElementById('scopeChip').classList.add('hidden');document.getElementById('signoutBtn').classList.add('hidden');
   document.getElementById('codeInput').value='';show('scr-gate');}
 function bootSession(){const sc=session.scope;
