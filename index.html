@@ -374,11 +374,10 @@ function submitCode(){
   if(!code){err.textContent='Please enter your code.';return;}
   const btn=document.getElementById('gateBtn');btn.disabled=true;btn.textContent='Checking…';
   if(cfg.scriptUrl){
-    const _ctrl=new AbortController();const _t=setTimeout(()=>_ctrl.abort(),8000);
-    fetch(cfg.scriptUrl+'?action=auth&code='+encodeURIComponent(code)+'&_='+Date.now(),{signal:_ctrl.signal})
-      .then(r=>r.json()).then(d=>{clearTimeout(_t);btn.disabled=false;btn.textContent='Continue';
+    fetch(cfg.scriptUrl+'?action=auth&code='+encodeURIComponent(code)+'&_='+Date.now())
+      .then(r=>r.json()).then(d=>{btn.disabled=false;btn.textContent='Continue';
         if(d&&d.ok&&d.scope)grantAccess(code,d.scope);else{err.textContent='Invalid code. Please check with your HOD.';toast('Invalid code — please check with your HOD.','bad');}})
-      .catch(()=>{clearTimeout(_t);btn.disabled=false;btn.textContent='Continue';err.textContent='Cannot reach server — check internet.';toast('Cannot reach server — check internet.','bad');});
+      .catch(()=>{btn.disabled=false;btn.textContent='Continue';err.textContent='Cannot reach server — check internet.';toast('Cannot reach server — check internet.','bad')});
   }else{btn.disabled=false;btn.textContent='Continue';const sc=DEMO_CODES[code];
     if(sc){grantAccess(code,sc);toast('Demo mode — access control is off until Google Sheets is connected.','bad');}
     else{err.textContent='Sync not set up. Use a DEMO code or open Setup.';toast('No server URL set — open Setup first.','bad');}}
