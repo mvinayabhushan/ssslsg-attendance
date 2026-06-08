@@ -302,7 +302,7 @@ tr:last-child td{border-bottom:none}
 
 <script>
 /* ============ CONFIG: paste your /exec URL once, then save & share ============ */
-const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8BgxA4x5n3ZI7X_rp7TM6PGhasmK8tE_5wGlHq0FlpQlp5pJwoIm3yCqWQ0HN8IBe/exec";
+const DEFAULT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx8BgxA4x5n3ZI7X_rp7TM6PGhasmK8tE_5wGlHq0FlpQlp5pJwoIm3yCqWQ0HN8IBe/exec";   // e.g. "https://script.google.com/macros/s/AKfy..../exec"
 
 const CAMPUSES=[
   {id:'b01',name:'Bagalkote',section:'Boys',coords:['Avinash K']},
@@ -369,7 +369,7 @@ function statCard(lab,val,sub,cls){return `<div class="stat ${cls||''}"><div cla
 
 /* ===== AUTH ===== */
 function submitCode(){
-  const code=document.getElementById('codeInput').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const code=document.getElementById('codeInput').value.trim().toUpperCase();
   const err=document.getElementById('gateErr');err.textContent='';
   if(!code){err.textContent='Please enter your code.';return;}
   const btn=document.getElementById('gateBtn');btn.disabled=true;btn.textContent='Checking…';
